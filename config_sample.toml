@@ -1,0 +1,38 @@
+# 错误的字段命名方式 ex. Pre_Fix  Pre-Fix
+# CaseName值域不可出现'_',影响log文件命名
+
+[robot]
+# Endian = "456" # 123 小  456 大
+Project  = "dbt" # 项目名称,日志记录会用到
+TickerTime = 500        # 主逻辑触发时间间隔 ms
+HeartBeat  = 30        # 心跳间隔 秒
+# Path = "D:/GO_SOURCE/GiantQA/demo/" #项目所在目录
+# TreeDebug = true
+Timeout  = 4    # 事务超时时间 秒
+logLevel = "debug" # info  debug
+CaseName = "upSkill" # "login", "newLogin", "battle", "talk", "mailsignal", "equip", "upSkill"
+ALiveSecond = 20    #登录成功后保持在线时长 秒
+OfflineSecond = 10   # 断开链接后的等待时间
+
+[mail]
+SendDelay = 30       # 发邮件后的延迟时间
+DelDelay = 30        # 删除邮件后的延迟时间
+
+
+[Login]
+devLogin = false # false | true
+ServerAddr = "http://192.168.12.75:11001/login"
+
+FirstWorld = true # false | true  只进序号最小世界
+sendMail = "http://47.102.186.143:11030"
+ServerGroup = "http://192.168.94.160/serverlist.php"
+PostStr = "appid=2&channel=local&ver=%d&acc=%s"
+SerVersion = 119
+ZoneId = 5
+loginZone = "%s?api=zone&appid=2&ver=%d&token=%s"
+
+total = 1          # 机器人总启动数
+PerMillisecond = 5 # 每启动间隔
+PreFix = "dQ"      # 帐号前缀
+SkipNum = 9        # 跳过无用帐号个数
+NameFmt = "%s%04d" # 帐号格式化串 guest00000 guest00001
