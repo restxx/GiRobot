@@ -1,4 +1,4 @@
-module GiantQA
+module GiRobot
 
 go 1.14
 
