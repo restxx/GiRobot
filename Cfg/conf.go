@@ -101,9 +101,14 @@ func GetEndian() binary.ByteOrder {
 	}
 }
 
+func GetLogPath() string {
+	return Cfg.GetString("robot.logPath")
+}
+
 func init() {
 	// pflag.StringP("robot.CaseName", "C", "None", "填入相应TestCase名称(login, newLogin, battle, talk, mailsignal, equip, upSkill)")
 	pflag.StringP("Login.total", "T", "1", "机器人总启动数")
 	pflag.StringP("Login.PreFix", "P", "Dgh", "帐号前缀")
 	pflag.StringP("Login.SkipNum", "S", "0", "跳过帐号个数")
+	pflag.StringP("Info", "I", "", "进程Info信息方便grep查找")
 }
