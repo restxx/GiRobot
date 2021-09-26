@@ -1,4 +1,4 @@
-module GiRobot
+module github.com/restxx/GiRobot
 
 go 1.14
 
