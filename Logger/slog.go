@@ -1,4 +1,4 @@
-package logger
+package log
 
 import (
 	"fmt"
@@ -84,25 +84,36 @@ func BuildLogger(logDir, CaseName, Prefix string, totalNum int, logLevel string)
 	<seelog type="asynctimer" asyncinterval="1000"  minlevel="%v">
 		<outputs formatid="main">  
 			<filter levels="info">   
-				<console />    
-				<rollingfile type="size"  filename="%v" maxsize="20480000" maxrolls="100" />    
+				<console formatid="info-color"/>    
+				<rollingfile formatid="info" type="size"  filename="%v" maxsize="20480000" maxrolls="100" />    
 			</filter>
 			<filter levels="critical,error">
-				<console />   
-				<rollingfile type="size"  filename="%v" maxsize="40960000" maxrolls="500" />   
+				<console formatid="error-color"/>   
+				<rollingfile formatid="error" type="size"  filename="%v" maxsize="40960000" maxrolls="500" />   
 			</filter>
 			<filter levels="debug">
-				<console />   
-				<rollingfile type="size" filename="%v" maxsize="40960000" maxrolls="500" />   
+				<console formatid="debug-color"/>   
+				<rollingfile formatid="debug" type="size" filename="%v" maxsize="40960000" maxrolls="500" />   
 			</filter>
-			<filter levels="warn" formatid="tpslog">
-				<console />   
-				<rollingfile type="size" filename="%v" maxsize="40960000" maxrolls="500" />   
+			<filter levels="warn">
+				<console formatid="tpslog-color"/>   
+				<rollingfile formatid="tpslog" type="size" filename="%v" maxsize="40960000" maxrolls="500" />   
 			</filter>
 		</outputs>
 		<formats>
 			<format id="main" format="[%%Date(2006-01-02 15:04:05.000)] [%%File:%%Line] [%%LEVEL] %%Msg%%n"/>
+
+			<format id="error-color" format="%%EscM(31)[%%Date(2006-01-02 15:04:05.000)] [%%File:%%Line] [%%LEVEL] %%Msg%%n%%EscM(0)"/>
+			<format id="error" format="[%%Date(2006-01-02 15:04:05.000)] [%%File:%%Line] [%%LEVEL] %%Msg%%n"/>
+
+			<format id="debug-color" format="%%EscM(37)[%%Date(2006-01-02 15:04:05.000)] [%%File:%%Line] [%%LEVEL] %%Msg%%n%%EscM(0)"/>
+			<format id="debug" format="[%%Date(2006-01-02 15:04:05.000)] [%%File:%%Line] [%%LEVEL] %%Msg%%n"/>
+
+			<format id="info-color" format="%%EscM(36)[%%Date(2006-01-02 15:04:05.000)] [%%File:%%Line] [%%LEVEL] %%Msg%%n%%EscM(0)"/>
+			<format id="info" format="[%%Date(2006-01-02 15:04:05.000)] [%%File:%%Line] [%%LEVEL] %%Msg%%n"/>
+
 			<format id="tpslog" format="%%Msg%%n"/>
+			<format id="tpslog-color" format="%%EscM(33)%%Msg%%n%%EscM(0)"/>
 		</formats>
 	</seelog>
 	`, logLevel, realFile, realErrorFile, realDebugFile, realWarnTpsFile)
