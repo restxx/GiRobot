@@ -3,55 +3,59 @@ package Meter
 import (
 	"context"
 	logger "github.com/restxx/GiRobot/Logger"
+	"github.com/restxx/GiRobot/report"
 	"sync"
 	"time"
 )
 
-// 单个机器人timeout时间内同名事务最大数
-const MAXSIZE = 200
+const MAXSIZE = 200 //单个机器人timeout时间内同名事务最大数
 
-type MeteTrans struct {
+type Meter struct {
 	mt      *MtManager
 	name    string
 	StartTm time.Time
 	T       *time.Timer
 	status  uint8
-
-	Ctx    context.Context
-	Cancel context.CancelFunc
+	Ctx     context.Context
+	Cancel  context.CancelFunc
 }
 
-func (m *MeteTrans) TPS(project string, account string, transName string, status uint8, spendtime float64) {
+func (m *Meter) tps(project string, account string, transName string, status uint8, spendtime int64) {
 	now := time.Now().Format("2006-01-02 15:04:05.000")
 	// str := fmt.Sprintf(`{"projectId": %s, "logTime": "%s", "account": "%s","testCase": "%s", "testResult": %d, "responseTime": %d}`,
 	logger.Warn(`{"ID":"%s","LT":"%s","AC":"%s","TC":"%s","RT":%d,"TM":%d}`,
-		project, now, account, transName, status, uint32(spendtime))
+		project, now, account, transName, status, spendtime)
+
+	if report.ClientReqStats != nil {
+		report.AddLogData(transName, spendtime, status)
+	}
 }
 
-func NewMeteTrans(mt *MtManager, trans string) *MeteTrans {
-	m := &MeteTrans{mt: mt, name: trans, StartTm: time.Now(), T: time.NewTimer(mt.timeout * time.Second)}
+func newMeter(mt *MtManager, trans string) *Meter {
+	m := &Meter{mt: mt, name: trans, StartTm: time.Now(), T: time.NewTimer(mt.timeout * time.Second)}
 	m.Ctx, m.Cancel = context.WithCancel(context.Background())
 
-	go func(meter *MeteTrans) {
+	go func(meter *Meter) {
+		defer meter.T.Stop()
+
 		select {
 		case <-meter.T.C: // 超时退出
 			// 超时写logTrans
 			meter.mt.CloseNode(trans, 3)
 		case <-meter.Ctx.Done(): // 主动关闭
 			// 写TransLog millisecond
-			milli := float64((time.Now().Sub(m.StartTm)) / 10e5)
-			meter.TPS(meter.mt.project, meter.mt.account, meter.name, meter.status, milli)
+			milli := int64((time.Now().Sub(m.StartTm)) / 10e5)
+			meter.tps(meter.mt.project, meter.mt.account, meter.name, meter.status, milli)
 		}
-		// 关闭计时
-		meter.T.Stop()
 	}(m)
 	return m
 }
 
+//-----------------------------------------------------------------------------------------
+
 type MtManager struct {
 	project string
 	account string
-	// uid     uint64
 	timeout time.Duration
 	hMap    sync.Map
 	lock    *sync.Mutex
@@ -66,43 +70,39 @@ func NewMtManager(project string, account string, timeout time.Duration) *MtMana
 	return &MtManager{project: project, account: account, timeout: timeout, lock: &sync.Mutex{}}
 }
 
-func (m *MtManager) CreateNode(trans string) {
+func (m *MtManager) CreateNode(caseName string) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
-	var ch chan *MeteTrans
-	iv, ok := m.hMap.Load(trans)
-
-	if !ok { // 当前chan不存在
-		ch = make(chan *MeteTrans, MAXSIZE)
-		m.hMap.Store(trans, ch)
-	} else {
-		ch = iv.(chan *MeteTrans)
+	ch := make(chan *Meter, MAXSIZE)
+	iv, ok := m.hMap.LoadOrStore(caseName, ch)
+	if ok {
+		close(ch) //已存在对应的ch
 	}
-	ch <- NewMeteTrans(m, trans)
+	iv.(chan *Meter) <- newMeter(m, caseName)
 }
 
-func (m *MtManager) CloseNode(trans string, status uint8) {
+func (m *MtManager) CloseNode(caseName string, status uint8) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
-	iv, ok := m.hMap.Load(trans)
+	iv, ok := m.hMap.Load(caseName)
 	if !ok {
 		return
 	}
-	ch, ok := iv.(chan *MeteTrans)
+	ch, ok := iv.(chan *Meter)
 	if !ok {
 		return
 	}
 	select {
-	case mete := <-ch:
-		mete.status = status
+	case meter := <-ch:
+		meter.status = status
 		if status != 3 { // 如果是正常结束
-			mete.Cancel()
+			meter.Cancel()
 			return
 		} else { // 超时退出
-			milli := float64((time.Now().Sub(mete.StartTm)) / 10e5)
-			mete.TPS(mete.mt.project, mete.mt.account, mete.name, mete.status, milli)
+			milli := int64((time.Now().Sub(meter.StartTm)) / 10e5)
+			meter.tps(meter.mt.project, meter.mt.account, meter.name, meter.status, milli)
 		}
 	default:
 		return
