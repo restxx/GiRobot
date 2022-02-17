@@ -63,7 +63,8 @@ func (r *RequestStats) ServRecvLoop() {
 		case <-r.Ctx.Done():
 			if r.mode == SERVER_MODE {
 				t := r.CollectTotalsReportData()
-				fmt.Println("all: ", t) //------------------------------------
+				fmt.Println("all: ", t)
+				sendData("http://211.159.200.183:6080/api/resall/", t)
 			}
 			return
 		case msg := <-r.ClientReportChan:
@@ -82,10 +83,10 @@ func (r *RequestStats) ServRecvLoop() {
 				//	每30秒结算一次
 				t := r.CollectReportData()
 				fmt.Println("30s:", t)
+				sendData("http://211.159.200.183:6080/api/restmp/", t)
 			}
 		}
 	}
-
 }
 
 func (s *RequestStats) LogRequest(name string, responseTime int64) {

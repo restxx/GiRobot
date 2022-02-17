@@ -3,6 +3,7 @@ package report
 import (
 	"encoding/json"
 	"fmt"
+	logger "github.com/restxx/GiRobot/Logger"
 	"net/http"
 	"strings"
 	"time"
@@ -13,11 +14,18 @@ var ClientReqStats *RequestStats
 // 负责将收集到的压测数据每秒发送到chartServer
 
 func sendData(url, strJson string) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error("url=[%s] sendData Error %v", url, strJson)
+			return
+		}
+	}()
+
 	resp, err := http.Post(url, "application/json", strings.NewReader(strJson))
 	defer resp.Body.Close()
-
 	if err != nil {
-		fmt.Println(err)
+		logger.ErrorV(err)
 	}
 }
 

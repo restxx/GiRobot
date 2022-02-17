@@ -75,10 +75,15 @@ func BuildLogger(logDir, CaseName, Prefix string, totalNum int, logLevel string)
 
 	tpslog := tpslogName(CaseName, Prefix, totalNum)
 	_ = os.Mkdir(logDir, 0777)
-	realFile := logDir + "/normal.log"
-	realErrorFile := logDir + "/error.log"
-	realDebugFile := logDir + "/debug.log"
-	realWarnTpsFile := logDir + "/" + tpslog + ".log"
+	//realFile := logDir + "/normal.log"
+	//realErrorFile := logDir + "/error.log"
+	//realDebugFile := logDir + "/debug.log"
+	//realWarnTpsFile := logDir + "/" + tpslog + ".log"
+
+	realFile := fmt.Sprintf("%s/%s_info.log", logDir, tpslog)
+	realErrorFile := fmt.Sprintf("%s/%s_error.log", logDir, tpslog)
+	realDebugFile := fmt.Sprintf("%s/%s_debug.log", logDir, tpslog)
+	realWarnTpsFile := fmt.Sprintf("%s/%s.log", logDir, tpslog)
 
 	sConfig := fmt.Sprintf(`
 	<seelog type="asynctimer" asyncinterval="1000"  minlevel="%v">
