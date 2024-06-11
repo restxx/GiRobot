@@ -2,7 +2,6 @@ package Robot
 
 import (
 	"fmt"
-	"github.com/letterbaby/manzo/signal"
 	cfg "github.com/restxx/GiRobot/Cfg"
 	logger "github.com/restxx/GiRobot/Logger"
 	"github.com/restxx/GiRobot/utils"
@@ -82,7 +81,7 @@ func init() {
 
 	go func() {
 		h := []os.Signal{syscall.SIGINT, syscall.SIGTERM}
-		signal.Watch(h, func(s os.Signal) {
+		utils.Watch(h, func(s os.Signal) {
 			logger.Info("Handle signal: %v", s)
 			stopAll = true
 		})

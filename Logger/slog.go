@@ -75,22 +75,22 @@ func BuildLogger(logDir, CaseName, Prefix string, totalNum int, logLevel string)
 
 	tpslog := tpslogName(CaseName, Prefix, totalNum)
 	_ = os.Mkdir(logDir, 0777)
-	//realFile := logDir + "/normal.log"
-	//realErrorFile := logDir + "/error.log"
-	//realDebugFile := logDir + "/debug.log"
-	//realWarnTpsFile := logDir + "/" + tpslog + ".log"
+	realInfoFile := logDir + "/_info.log"
+	realErrorFile := logDir + "/_error.log"
+	realDebugFile := logDir + "/_debug.log"
+	realWarnTpsFile := logDir + "/" + tpslog + ".log"
 
-	realFile := fmt.Sprintf("%s/%s_info.log", logDir, tpslog)
-	realErrorFile := fmt.Sprintf("%s/%s_error.log", logDir, tpslog)
-	realDebugFile := fmt.Sprintf("%s/%s_debug.log", logDir, tpslog)
-	realWarnTpsFile := fmt.Sprintf("%s/%s.log", logDir, tpslog)
+	//realInfoFile := fmt.Sprintf("%s/%s_info.log", logDir, tpslog)
+	//realErrorFile := fmt.Sprintf("%s/%s_error.log", logDir, tpslog)
+	//realDebugFile := fmt.Sprintf("%s/%s_debug.log", logDir, tpslog)
+	//realWarnTpsFile := fmt.Sprintf("%s/%s.log", logDir, tpslog)
 
 	sConfig := fmt.Sprintf(`
 	<seelog type="asynctimer" asyncinterval="1000"  minlevel="%v">
 		<outputs formatid="main">  
 			<filter levels="info">   
 				<console formatid="info-color"/>    
-				<rollingfile formatid="info" type="size"  filename="%v" maxsize="20480000" maxrolls="100" />    
+				<rollingfile formatid="info" type="size"  filename="%v" maxsize="20480000" maxrolls="500" />    
 			</filter>
 			<filter levels="critical,error">
 				<console formatid="error-color"/>   
@@ -102,7 +102,7 @@ func BuildLogger(logDir, CaseName, Prefix string, totalNum int, logLevel string)
 			</filter>
 			<filter levels="warn">
 				<console formatid="tpslog-color"/>   
-				<rollingfile formatid="tpslog" type="size" filename="%v" maxsize="40960000" maxrolls="500" />   
+				<rollingfile formatid="tpslog" type="size" filename="%v" maxsize="209715200" maxrolls="1000" />   
 			</filter>
 		</outputs>
 		<formats>
@@ -121,7 +121,7 @@ func BuildLogger(logDir, CaseName, Prefix string, totalNum int, logLevel string)
 			<format id="tpslog-color" format="%%EscM(33)%%Msg%%n%%EscM(0)"/>
 		</formats>
 	</seelog>
-	`, logLevel, realFile, realErrorFile, realDebugFile, realWarnTpsFile)
+	`, logLevel, realInfoFile, realErrorFile, realDebugFile, realWarnTpsFile)
 
 	ins.logger, _ = seelog.LoggerFromConfigAsString(sConfig)
 

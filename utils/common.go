@@ -56,10 +56,13 @@ func Sleep(n int32) {
 	time.Sleep(time.Duration(t) * time.Millisecond)
 }
 
-// Tcp_conn 公共接口
-type IConn interface {
-	// SendPak(pak interface{}) int
-}
+// 计量公共接口
 
+type IMtManager interface {
+	CreateNode(caseName string)
+	CloseNode(caseName string, status uint8)
+	GetTimer(idx int) (*time.Timer, interface{})
+	StopNode(chLayer interface{})
+}
 
 ////////////////////////////////////////////////////////////////

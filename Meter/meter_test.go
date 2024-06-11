@@ -1,6 +1,7 @@
 package Meter
 
 import (
+	"fmt"
 	logger "github.com/restxx/GiRobot/Logger"
 	"github.com/restxx/GiRobot/report"
 	"math/rand"
@@ -48,10 +49,18 @@ func TestMeter2(t *testing.T) {
 				time.Sleep(time.Millisecond * time.Duration(rand.Int63n(98)+1))
 				mt.CloseNode("login", 1)
 			}
-
 		}
-
 	}()
-
 	<-flag
+}
+
+func TestChan(t *testing.T) {
+
+	ch := make(chan int, 1)
+	fmt.Println(len(ch))
+	//close(ch)
+	ch <- 1
+	fmt.Println(len(ch))
+	<-ch
+	fmt.Println(len(ch))
 }

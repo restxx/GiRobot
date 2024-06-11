@@ -18,6 +18,7 @@ type Robot struct {
 	lastStep   int // 完成的步骤
 	normalStep int // 当前的步骤
 	MainTicker *time.Ticker
+	MtMgr      utils.IMtManager
 
 	MainAction func()
 	HeartBeat  func()
@@ -31,8 +32,18 @@ func (self *Robot) Wait(check CheckFun) bool {
 	tm := time.NewTimer(30 * time.Second)
 	defer tm.Stop()
 
+	T1, M1 := self.MtMgr.GetTimer(1)
+	T2, M2 := self.MtMgr.GetTimer(2)
+	T3, M3 := self.MtMgr.GetTimer(3)
+
 	for {
 		select {
+		case <-T1.C:
+			self.MtMgr.StopNode(M1)
+		case <-T2.C:
+			self.MtMgr.StopNode(M2)
+		case <-T3.C:
+			self.MtMgr.StopNode(M3)
 		case <-tm.C:
 			logger.Error("请求长时间无返回机器人主动断开[%s]", self.CliData.Account)
 			self.ReLogin()

@@ -21,10 +21,10 @@ type Meter struct {
 }
 
 func (m *Meter) tps(project string, account string, transName string, status uint8, spendtime int64) {
-	now := time.Now().Format("2006-01-02 15:04:05.000")
+	now := time.Now()
 	// str := fmt.Sprintf(`{"projectId": %s, "logTime": "%s", "account": "%s","testCase": "%s", "testResult": %d, "responseTime": %d}`,
-	logger.Warn(`{"ID":"%s","LT":"%s","AC":"%s","TC":"%s","RT":%d,"TM":%d}`,
-		project, now, account, transName, status, spendtime)
+	logger.Warn(`{"ID":"%s","LT":"%s","AC":"%s","TC":"%s","RT":%d,"TM":%d, "TS":"%d"}`,
+		project, now.Format("2006-01-02 15:04:05.000"), account, transName, status, spendtime, int32(now.Unix()))
 
 	if report.ClientReqStats != nil {
 		report.AddLogData(transName, spendtime, status)
@@ -43,9 +43,8 @@ func newMeter(mt *MtManager, trans string) *Meter {
 			// 超时写logTrans
 			meter.mt.CloseNode(trans, 3)
 		case <-meter.Ctx.Done(): // 主动关闭
-			// 写TransLog millisecond
-			milli := int64((time.Now().Sub(m.StartTm)) / 10e5)
-			meter.tps(meter.mt.project, meter.mt.account, meter.name, meter.status, milli)
+			Milliseconds := time.Since(meter.StartTm).Milliseconds()
+			meter.tps(meter.mt.project, meter.mt.account, meter.name, meter.status, Milliseconds)
 		}
 	}(m)
 	return m
@@ -59,15 +58,20 @@ type MtManager struct {
 	timeout time.Duration
 	hMap    sync.Map
 	lock    *sync.Mutex
+	t       *time.Timer //并没使用
 }
 
-// 每个客户一个Manager
-var _lock sync.Mutex
-
+// NewMtManager 每个客户一个Manager
 func NewMtManager(project string, account string, timeout time.Duration) *MtManager {
-	_lock.Lock()
-	defer _lock.Unlock()
-	return &MtManager{project: project, account: account, timeout: timeout, lock: &sync.Mutex{}}
+	a := &MtManager{
+		project: project,
+		account: account,
+		timeout: timeout,
+		lock:    &sync.Mutex{},
+		t:       time.NewTimer(0), //并没使用
+	}
+	a.t.Stop()
+	return a
 }
 
 func (m *MtManager) CreateNode(caseName string) {
@@ -101,10 +105,17 @@ func (m *MtManager) CloseNode(caseName string, status uint8) {
 			meter.Cancel()
 			return
 		} else { // 超时退出
-			milli := int64((time.Now().Sub(meter.StartTm)) / 10e5)
-			meter.tps(meter.mt.project, meter.mt.account, meter.name, meter.status, milli)
+			Milliseconds := time.Since(meter.StartTm).Milliseconds()
+			meter.tps(meter.mt.project, meter.mt.account, meter.name, meter.status, Milliseconds)
 		}
 	default:
 		return
 	}
 }
+
+// GetTimer  -----只为满足接口声明---------------
+func (m *MtManager) GetTimer(int) (*time.Timer, interface{}) {
+	return m.t, nil
+}
+
+func (m *MtManager) StopNode(interface{}) {}
