@@ -32,7 +32,7 @@ func (m *Meter) tps(project string, account string, transName string, status uin
 }
 
 func newMeter(mt *MtManager, trans string) *Meter {
-	m := &Meter{mt: mt, name: trans, StartTm: time.Now(), T: time.NewTimer(mt.timeout * time.Second)}
+	m := &Meter{mt: mt, name: trans, StartTm: time.Now(), T: time.NewTimer(mt.timeout)}
 	m.Ctx, m.Cancel = context.WithCancel(context.Background())
 
 	go func(meter *Meter) {

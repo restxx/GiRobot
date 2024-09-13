@@ -90,7 +90,7 @@ func BuildLogger(logDir, CaseName, Prefix string, totalNum int, logLevel string)
 		<outputs formatid="main">  
 			<filter levels="info">   
 				<console formatid="info-color"/>    
-				<rollingfile formatid="info" type="size"  filename="%v" maxsize="20480000" maxrolls="500" />    
+				<rollingfile formatid="info" type="size"  filename="%v" maxsize="20480000" maxrolls="100" />    
 			</filter>
 			<filter levels="critical,error">
 				<console formatid="error-color"/>   
@@ -102,7 +102,7 @@ func BuildLogger(logDir, CaseName, Prefix string, totalNum int, logLevel string)
 			</filter>
 			<filter levels="warn">
 				<console formatid="tpslog-color"/>   
-				<rollingfile formatid="tpslog" type="size" filename="%v" maxsize="209715200" maxrolls="1000" />   
+				<rollingfile formatid="tpslog" type="size" filename="%v" maxsize="40960000" maxrolls="500" />   
 			</filter>
 		</outputs>
 		<formats>

@@ -23,8 +23,7 @@ func IsStop() bool {
 
 func Start(goFunc func(*utils.ClientData, interface{}), Var interface{}) {
 	stopAll = false
-	TickerTime := cfg.GetPerMillisecond()
-	tmTick := time.NewTicker(TickerTime * time.Millisecond)
+	tmTick := time.NewTicker(cfg.GetPerMillisecond())
 	Wg := &sync.WaitGroup{}
 
 	for i := 0; i < cfg.GetTotal(); i++ {
@@ -42,7 +41,7 @@ func Start(goFunc func(*utils.ClientData, interface{}), Var interface{}) {
 						if ud.DelayLogin {
 							// 延时登录
 							logger.Info("[%s]延时登录", ud.Account)
-							time.Sleep(time.Second * cfg.GetOfflineSecond())
+							time.Sleep(cfg.GetOfflineSecond())
 						}
 						goFunc(ud, false)
 					}()

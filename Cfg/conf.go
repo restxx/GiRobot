@@ -61,6 +61,10 @@ func GetTickerTime() time.Duration {
 	return Cfg.GetDuration("robot.TickerTime")
 }
 
+func GetHeartbeatTime() time.Duration {
+	return Cfg.GetDuration("robot.HeartBeat")
+}
+
 func GetNameFmt() string {
 	return Cfg.GetString("login.NameFmt")
 }

@@ -119,11 +119,15 @@ func (self *Robot) GetLastStep() int {
 }
 
 func (self *Robot) MainLoop() {
-	self.MainTicker = time.NewTicker(cfg.GetTickerTime() * time.Millisecond)
-	defer self.MainTicker.Stop()
-	defer logger.Debug("[%s]关闭mainloop协程", self.CliData.Account)
+	t := cfg.GetTickerTime()
+	self.MainTicker = time.NewTicker(t)
+	defer func(){
+		self.MainTicker.Stop()
+		logger.Debug("[%s]关闭mainloop协程", self.CliData.Account)
+	}()
 
-	beat := time.NewTicker(30 * time.Second)
+	n := cfg.GetHeartbeatTime()
+	beat := time.NewTicker(n)
 	defer beat.Stop()
 
 	for {
