@@ -67,7 +67,7 @@ func NewMtManager(project string, account string, timeout time.Duration) *MtMana
 }
 
 func (mt *MtManager) newMeter(trans string) *Meter {
-	return &Meter{mt: mt, name: trans, StartTm: time.Now(), T: time.NewTimer(mt.timeout * time.Second)}
+	return &Meter{mt: mt, name: trans, StartTm: time.Now(), T: time.NewTimer(mt.timeout)}
 }
 
 func (m *MtManager) CreateNode(caseName string) {
