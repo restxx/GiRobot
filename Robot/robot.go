@@ -135,20 +135,20 @@ func (self *Robot) MainLoop() {
 		case <-self.Ctx.Done():
 			logger.Info("收到 Ctx.Done()-------")
 			return
-		default:
-		}
-
-		select {
-		case <-beat.C:
-			logger.Info("收到心跳 beat.C--------")
-			// 心跳
-			self.HeartBeat()
 		case <-self.MainTicker.C:
 			// 执行主动发包动作
 			self.MainAction()
 		case msg := <-self.InCome:
 			self.ProcessMsg(msg)
-
-		} // select end
+		priority:
+			for {
+				select {
+				case msg1 := <-self.InCome:
+					self.ProcessMsg(msg1)
+				default:
+					break priority
+				}
+			}
+		}
 	} //for end
 }
