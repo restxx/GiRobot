@@ -150,5 +150,21 @@ func (self *Robot) MainLoop() {
 				}
 			}
 		}
+
+		//select {
+		////case <-beat.C:
+		////	logger.Info("收到心跳 beat.C--------")
+		////	// 心跳
+		////	self.HeartBeat()
+		//case <-self.Ctx.Done():
+		//	logger.Info("收到 Ctx.Done()-------")
+		//	return
+		//case <-self.MainTicker.C:
+		//	// 执行主动发包动作
+		//	self.MainAction()
+		//case msg := <-self.InCome:
+		//	self.ProcessMsg(msg)
+		//} // select end
+
 	} //for end
 }
